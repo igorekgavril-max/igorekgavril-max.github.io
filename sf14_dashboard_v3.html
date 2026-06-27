@@ -1,0 +1,456 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.sf { font-family: 'Roboto', var(--font-sans); color: var(--color-text-primary); padding: 0 0 2rem; }
+
+/* Header */
+.sf-header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 1.5rem 1.75rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.sf-logo { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #fff; }
+.sf-logo span { color: #4a9eff; }
+.sf-tagline { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 3px; }
+.sf-badge {
+  background: rgba(74,158,255,0.15);
+  border: 1px solid rgba(74,158,255,0.35);
+  color: #4a9eff;
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* KPI row */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+.kpi {
+  background: var(--color-background-primary);
+  border: 1px solid #e8edf2;
+  border-radius: 10px;
+  padding: 14px 16px;
+  border-top: 3px solid #1a73e8;
+}
+@media (prefers-color-scheme: dark) {
+  .kpi { border-color: rgba(255,255,255,0.1); border-top-color: #4a9eff; }
+}
+.kpi-label { font-size: 11px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; font-weight: 500; }
+.kpi-value { font-size: 24px; font-weight: 700; color: #1a73e8; line-height: 1; }
+@media (prefers-color-scheme: dark) { .kpi-value { color: #4a9eff; } }
+.kpi-sub { font-size: 11px; color: var(--color-text-tertiary); margin-top: 5px; }
+
+/* Section */
+.sf-section { margin-bottom: 1.25rem; }
+.sf-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #1a73e8;
+  display: inline-block;
+}
+
+/* Chart card */
+.chart-card {
+  background: var(--color-background-primary);
+  border: 1px solid #e8edf2;
+  border-radius: 10px;
+  padding: 1.25rem 1.25rem 1rem;
+  margin-bottom: 1rem;
+}
+@media (prefers-color-scheme: dark) { .chart-card { border-color: rgba(255,255,255,0.1); } }
+.chart-title { font-size: 14px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 4px; }
+.chart-desc { font-size: 12px; color: var(--color-text-tertiary); margin-bottom: 14px; }
+
+/* Legend */
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 10px; font-size: 11px; color: var(--color-text-secondary); }
+.legend span { display: flex; align-items: center; gap: 5px; }
+.ldot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* Year band strip */
+.year-strip { display: flex; margin-bottom: 2px; }
+.yband {
+  flex: 1;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 0;
+  border-radius: 3px 3px 0 0;
+}
+
+/* Timeline footer */
+.tl-footer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e8edf2;
+}
+@media (prefers-color-scheme: dark) { .tl-footer { border-color: rgba(255,255,255,0.08); } }
+.tl-footer b { color: var(--color-text-primary); font-weight: 700; }
+
+/* Insights */
+.insights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.insight-card {
+  background: var(--color-background-primary);
+  border: 1px solid #e8edf2;
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  border-left: 4px solid #1a73e8;
+  position: relative;
+}
+@media (prefers-color-scheme: dark) { .insight-card { border-color: rgba(255,255,255,0.1); border-left-color: #4a9eff; } }
+.insight-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1a73e8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+@media (prefers-color-scheme: dark) { .insight-num { color: #4a9eff; } }
+.insight-title { font-size: 14px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 6px; line-height: 1.3; }
+.insight-body { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; }
+.insight-highlight {
+  display: inline-block;
+  background: #e8f0fe;
+  color: #1a73e8;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-weight: 700;
+  font-size: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  .insight-highlight { background: rgba(74,158,255,0.15); color: #4a9eff; }
+}
+
+/* Heatmap */
+.heatmap-wrap { overflow-x: auto; }
+.heatmap { width: 100%; border-collapse: collapse; font-size: 11px; }
+.heatmap th { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); padding: 4px 6px; text-align: center; letter-spacing: 0.04em; }
+.heatmap td { padding: 4px 5px; text-align: center; border-radius: 4px; }
+.heatmap .name-cell { text-align: left; font-weight: 500; color: var(--color-text-primary); font-size: 12px; padding-right: 10px; white-space: nowrap; }
+.hm-yes { background: #1a73e8; color: #fff; font-weight: 700; }
+.hm-no { background: #f0f4f8; color: transparent; font-size: 8px; }
+@media (prefers-color-scheme: dark) { .hm-no { background: rgba(255,255,255,0.05); } }
+
+</style>
+
+<div class="sf">
+
+<div class="sf-header">
+  <div>
+    <div class="sf-logo">14<span>СФ</span> — Аналитика</div>
+    <div class="sf-tagline">Стипендиальный фонд БСОШ №14 · Бендеры · 2021–2026</div>
+  </div>
+  <div class="sf-badge">Учебные годы 2021/22 → 2025/26</div>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="kpi-label">Получателей</div>
+    <div class="kpi-value">15</div>
+    <div class="kpi-sub">уникальных человек</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Выплат всего</div>
+    <div class="kpi-value">166 842</div>
+    <div class="kpi-sub">российских рублей</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Кварталов</div>
+    <div class="kpi-value">20</div>
+    <div class="kpi-sub">5 учебных лет</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Макс. стипендий</div>
+    <div class="kpi-value">12</div>
+    <div class="kpi-sub">один человек</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Рекорд суммы</div>
+    <div class="kpi-value">31 022</div>
+    <div class="kpi-sub">Сиденко Иван ₽</div>
+  </div>
+</div>
+
+<div class="sf-section">
+  <div class="sf-section-title">Динамика по кварталам</div>
+  <div class="chart-card">
+    <div class="chart-title">Объём выплат за квартал (₽)</div>
+    <div class="chart-desc">Порядок: Q1→Q2→Q3→Q4 внутри каждого учебного года</div>
+    <div class="year-strip" id="yearStrip"></div>
+    <div class="legend">
+      <span><span class="ldot" style="background:#1a73e8;"></span>Сумма выплат</span>
+      <span><span class="ldot" style="background:#0d47a1;"></span>Последний период</span>
+    </div>
+    <div style="position:relative;width:100%;height:230px;">
+      <canvas id="timelineChart" role="img" aria-label="Динамика выплат по 20 кварталам в порядке учебных лет 2021/22–2025/26. Пик — Q1 2023 (14 067 ₽).">Динамика стипендиальных выплат, 20 кварталов, 2021–2026.</canvas>
+    </div>
+    <div class="tl-footer">
+      <span>Старт: <b>Q1 2021 · 6 900 ₽</b></span>
+      <span>Пик: <b>Q1 2023 · 14 067 ₽</b></span>
+      <span>Спад: <b>Q1–Q2 2025 · ~3 000 ₽</b></span>
+      <span>Последняя: <b>Q4 2026 · 4 036 ₽</b></span>
+    </div>
+  </div>
+</div>
+
+<div class="sf-section">
+  <div class="sf-section-title">Получатели</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="chart-card" style="grid-column: 1/-1;">
+      <div class="chart-title">Суммарные выплаты по получателям (₽)</div>
+      <div class="chart-desc">Все выплаты за историю программы</div>
+      <div class="legend">
+        <span><span class="ldot" style="background:#1a73e8;"></span>активные (6+ стипендий)</span>
+        <span><span class="ldot" style="background:#90caf9;"></span>средний уровень (2–5)</span>
+        <span><span class="ldot" style="background:#e3f2fd;border:1px solid #90caf9;"></span>разовые получатели</span>
+      </div>
+      <div style="position:relative;width:100%;height:460px;">
+        <canvas id="personChart" role="img" aria-label="Суммарные выплаты по 15 получателям, от Сиденко Ивана (31 022 ₽) до разовых получателей (900 ₽).">Рейтинг получателей по сумме стипендий.</canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sf-section">
+  <div class="sf-section-title">Карта активности</div>
+  <div class="chart-card">
+    <div class="chart-title">Присутствие получателей по кварталам</div>
+    <div class="chart-desc">Синяя ячейка — стипендия получена в данном периоде</div>
+    <div class="heatmap-wrap">
+      <table class="heatmap" id="heatmapTable"></table>
+    </div>
+  </div>
+</div>
+
+<div class="sf-section">
+  <div class="sf-section-title">Топ-3 инсайта</div>
+  <div class="insights-grid">
+
+    <div class="insight-card">
+      <div class="insight-num">Инсайт № 1</div>
+      <div class="insight-title">«Костяк» из 6 человек забирает 78% всех денег</div>
+      <div class="insight-body">
+        Топ-6 получателей (Сиденко, Кривошеева Д., Шаровы ×2, Кривошеев А., Куспляк) суммарно получили
+        <span class="insight-highlight">130 060 ₽ из 166 842 ₽</span> — это 78%. При этом остальные 9 человек делят лишь 22% фонда. Программа де-факто работает как «накопительная» — чем дольше учишься в 9–11 классе, тем больше получаешь. Это математически неизбежно: 3 года × 4 квартала = 12 стипендий максимум, и именно столько у лидеров.
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-num">Инсайт № 2</div>
+      <div class="insight-title">Пик фонда — 2022/23 уч. год, затем системный спад</div>
+      <div class="insight-body">
+        Учебный год 2022/23 стал рекордным: <span class="insight-highlight">51 714 ₽</span> — почти треть всех выплат за 5 лет. Это год, когда одновременно активны и «старшие» (Шаровы, Кривошеева Д. в 11 кл.), и «молодые» (Сиденко, Куспляк). После выпуска этого поколения в 2024/25 объём рухнул до <span class="insight-highlight">13 160 ₽</span> — минимум за всю историю. Фонд фактически «держится» на одном Кривошееве Андрее. Это структурный риск: смена поколения = провал финансирования.
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-num">Инсайт № 3</div>
+      <div class="insight-title">Средняя выплата на человека выросла в 2,8× — но получателей стало меньше</div>
+      <div class="insight-body">
+        В Q1 2021 средняя выплата на одного стипендиата была <span class="insight-highlight">1 150 ₽</span>, а к 2024/25 выросла до <span class="insight-highlight">3 077–3 441 ₽</span>. Однако число активных получателей за тот же период упало с 6 до 1. Иными словами, индексация стипендий (заметна в новостях сайта с марта 2023 г.) компенсировала демографический спад в деньгах — но не в охвате. Риск: при появлении нового «класса» отличников бюджет может не справиться с нагрузкой по новым ставкам.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const blue = '#1a73e8';
+const blueDark = '#0d47a1';
+const blueLight = '#90caf9';
+const bluePale = isDark ? 'rgba(74,158,255,0.15)' : '#e3f2fd';
+const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+const tickColor = isDark ? '#888' : '#9aa3af';
+const labelColor = isDark ? '#ccc' : '#333';
+
+const tlLabels = [
+  'Q1 2021','Q2 2021','Q3 2022','Q4 2022',
+  'Q1 2022','Q2 2022','Q3 2023','Q4 2023',
+  'Q1 2023','Q2 2023','Q3 2024','Q4 2024',
+  'Q1 2024','Q2 2024','Q3 2025','Q4 2025',
+  'Q1 2025','Q2 2025','Q3 2026','Q4 2026'
+];
+const tlData = [
+  6900,8272,7598,4964,
+  5932,8955,10789,11559,
+  14067,12353,12353,12941,
+  9786,10323,8333,8556,
+  3077,2970,3077,4036
+];
+const academicYears = ['2021/22','2022/23','2023/24','2024/25','2025/26'];
+const ayColors = isDark
+  ? ['rgba(74,158,255,0.25)','rgba(74,158,255,0.15)','rgba(74,158,255,0.25)','rgba(74,158,255,0.15)','rgba(74,158,255,0.25)']
+  : ['#e8f0fe','#f0f4ff','#e8f0fe','#f0f4ff','#e8f0fe'];
+
+// Build year strip
+const strip = document.getElementById('yearStrip');
+academicYears.forEach((y,i) => {
+  const d = document.createElement('div');
+  d.className = 'yband';
+  d.textContent = y;
+  d.style.background = ayColors[i];
+  d.style.color = isDark ? '#4a9eff' : '#1a73e8';
+  strip.appendChild(d);
+});
+
+const barColors = tlData.map((v,i) => i === tlData.length-1 ? blueDark : blue);
+
+new Chart(document.getElementById('timelineChart'), {
+  type: 'bar',
+  data: {
+    labels: tlLabels,
+    datasets: [{
+      label: '₽',
+      data: tlData,
+      backgroundColor: barColors,
+      borderRadius: 4,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          title: ctx => {
+            const groups = ['2021/22','2022/23','2023/24','2024/25','2025/26'];
+            return ctx[0].label + '  ·  уч. год ' + groups[Math.floor(ctx[0].dataIndex/4)];
+          },
+          label: ctx => '  ' + Math.round(ctx.parsed.y).toLocaleString('ru-RU') + ' ₽'
+        }
+      }
+    },
+    scales: {
+      x: { ticks: { font: { size: 9 }, color: tickColor, maxRotation: 50, autoSkip: false }, grid: { display: false } },
+      y: { ticks: { font: { size: 11 }, color: tickColor, callback: v => (v/1000).toFixed(0) + 'к' }, grid: { color: gridColor } }
+    }
+  }
+});
+
+const pNames = ['Сиденко Иван','Кривошеева Дарья','Шарова Тира','Шарова Мария','Кривошеев Андрей','Куспляк Николай','Глотов Денис','Берзой Кристина','Шаркова Мария','Кривошеева Елизавета','Шаркова Тира','Котова Наталья','Шаркова Анита','Коваленко Андрей','Жильцова Юлия'];
+const pTotals = [31022,26681,25181,25181,21064,20133,4973,4465,1500,1345,1200,1149,1149,900,900];
+const pCounts = [12,12,11,11,8,8,4,3,1,1,1,1,1,1,1];
+const pBg = pCounts.map(c => c >= 6 ? blue : c >= 2 ? blueLight : bluePale);
+
+new Chart(document.getElementById('personChart'), {
+  type: 'bar',
+  data: { labels: pNames, datasets: [{ label: '₽', data: pTotals, backgroundColor: pBg, borderRadius: 4, borderSkipped: false }] },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => '  ' + Math.round(ctx.parsed.x).toLocaleString('ru-RU') + ' ₽  ·  ' + pCounts[ctx.dataIndex] + ' стипендий' } }
+    },
+    scales: {
+      x: { ticks: { font: { size: 11 }, color: tickColor, callback: v => (v/1000).toFixed(0) + 'к ₽' }, grid: { color: gridColor } },
+      y: { ticks: { font: { size: 12 }, color: labelColor }, grid: { display: false } }
+    }
+  }
+});
+
+// Heatmap
+const periods = [
+  'Q1\'21','Q2\'21','Q3\'22','Q4\'22',
+  'Q1\'22','Q2\'22','Q3\'23','Q4\'23',
+  'Q1\'23','Q2\'23','Q3\'24','Q4\'24',
+  'Q1\'24','Q2\'24','Q3\'25','Q4\'25',
+  'Q1\'25','Q2\'25','Q3\'26','Q4\'26'
+];
+// sort_keys in academic order
+const sortKeys = [20211,20212,20213,20214,20221,20222,20223,20224,20231,20232,20233,20234,20241,20242,20243,20244,20251,20252,20253,20254];
+const presence = {
+  'Сиденко Иван':      [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+  'Кривошеева Дарья':  [1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0],
+  'Шарова Тира':       [0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0],
+  'Шарова Мария':      [0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0],
+  'Кривошеев Андрей':  [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1],
+  'Куспляк Николай':   [0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0],
+  'Глотов Денис':      [0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0],
+  'Берзой Кристина':   [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  'Шаркова Мария':     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  'Кривошеева Елизавета':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  'Шаркова Тира':      [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  'Котова Наталья':    [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  'Шаркова Анита':     [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  'Коваленко Андрей':  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  'Жильцова Юлия':     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+};
+const ayGroups = ['2021/22','2021/22','2021/22','2021/22','2022/23','2022/23','2022/23','2022/23','2023/24','2023/24','2023/24','2023/24','2024/25','2024/25','2024/25','2024/25','2025/26','2025/26','2025/26','2025/26'];
+const table = document.getElementById('heatmapTable');
+// Header with academic year groups
+const ayHeaderRow = document.createElement('tr');
+const emptyTh = document.createElement('th');
+emptyTh.className = 'name-cell';
+ayHeaderRow.appendChild(emptyTh);
+let prev = null; let colspan = 0; let cells = [];
+ayGroups.forEach((ay,i) => {
+  if (ay !== prev) {
+    if (prev !== null) cells.push([prev, colspan]);
+    prev = ay; colspan = 1;
+  } else colspan++;
+  if (i === ayGroups.length-1) cells.push([ay, colspan]);
+});
+cells.forEach(([ay, cs]) => {
+  const th = document.createElement('th');
+  th.colSpan = cs;
+  th.textContent = ay;
+  th.style.color = isDark ? '#4a9eff' : '#1a73e8';
+  th.style.background = isDark ? 'rgba(74,158,255,0.08)' : '#e8f0fe';
+  th.style.padding = '4px 0';
+  th.style.borderRadius = '4px';
+  ayHeaderRow.appendChild(th);
+});
+table.appendChild(ayHeaderRow);
+
+// Quarter header row
+const qhRow = document.createElement('tr');
+const qEmpty = document.createElement('th'); qEmpty.className='name-cell'; qhRow.appendChild(qEmpty);
+periods.forEach(p => {
+  const th = document.createElement('th');
+  th.textContent = p;
+  qhRow.appendChild(th);
+});
+table.appendChild(qhRow);
+
+Object.entries(presence).forEach(([name, row]) => {
+  const tr = document.createElement('tr');
+  const td0 = document.createElement('td'); td0.className = 'name-cell'; td0.textContent = name; tr.appendChild(td0);
+  row.forEach(v => {
+    const td = document.createElement('td');
+    td.className = v ? 'hm-yes' : 'hm-no';
+    td.textContent = v ? '✓' : '·';
+    tr.appendChild(td);
+  });
+  table.appendChild(tr);
+});
+</script>
