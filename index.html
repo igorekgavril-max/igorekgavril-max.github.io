@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14СФ — Аналитика</title>
+<style>
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9aa3af;
+  --color-background-primary: #ffffff;
+  --color-page-bg: #f5f5f5;
+  --color-red: #f02828;
+  --color-red-dark: #7f0f0f;
+  --color-red-light: #f9a8a8;
+  --color-red-pale: #fde8e8;
+  --color-border: #f0e0e0;
+  --radius: 10px;
+  --radius-lg: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text-primary: #f3f4f6;
+    --color-text-secondary: #9ca3af;
+    --color-text-tertiary: #6b7280;
+    --color-background-primary: #141414;
+    --color-page-bg: #0a0a0a;
+    --color-red-pale: rgba(240, 40, 40, 0.12);
+    --color-border: rgba(240, 40, 40, 0.15);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-page-bg);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+.sf {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 1rem 2.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+/* ── Header ── */
+.sf-header {
+  background: #1a1a1a;
+  color: #fff;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.sf-logo { font-size: clamp(18px, 4vw, 22px); font-weight: 700; letter-spacing: -0.5px; color: #fff; }
+.sf-logo span { color: var(--color-red); }
+.sf-tagline { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 3px; }
+.sf-badge {
+  background: rgba(240,40,40,0.15);
+  border: 1px solid rgba(240,40,40,0.4);
+  color: #f87171;
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── KPI ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 120px), 1fr));
+  gap: 10px;
+  margin-bottom: 1.25rem;
+  min-width: 0;
+  max-width: 100%;
+}
+.kpi {
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  border-top: 3px solid var(--color-red);
+  min-width: 0;
+}
+.kpi-label { font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; font-weight: 500; }
+.kpi-value { font-size: clamp(18px, 4vw, 24px); font-weight: 700; color: var(--color-red); line-height: 1.1; word-break: break-word; }
+.kpi-sub { font-size: 10px; color: var(--color-text-tertiary); margin-top: 4px; }
+
+/* ── Sections ── */
+.sf-section { margin-bottom: 1.25rem; min-width: 0; max-width: 100%; }
+.sf-section-title {
+  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--color-text-secondary); margin-bottom: 10px; padding-bottom: 6px;
+  border-bottom: 2px solid var(--color-red); display: inline-block;
+}
+
+.chart-card {
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem 1rem 0.875rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
+}
+.chart-title { font-size: 14px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 4px; }
+.chart-desc { font-size: 12px; color: var(--color-text-tertiary); margin-bottom: 12px; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 10px 14px; margin-bottom: 10px; font-size: 11px; color: var(--color-text-secondary); }
+.legend span { display: flex; align-items: center; gap: 5px; }
+.ldot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+.year-strip { display: flex; margin-bottom: 2px; min-width: 0; }
+.yband {
+  flex: 1; text-align: center; font-size: clamp(7px, 1.8vw, 9px);
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 3px 2px; border-radius: 3px 3px 0 0; min-width: 0;
+}
+
+/* ── Charts (pure CSS/SVG) ── */
+.chart-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 0 4px;
+  max-width: 100%;
+  width: 100%;
+}
+.chart-scroll::-webkit-scrollbar { height: 4px; }
+.chart-scroll::-webkit-scrollbar-thumb { background: var(--color-red-light); border-radius: 2px; }
+
+.vbar-layout {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  max-width: 100%;
+}
+.vbar-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-shrink: 0;
+  width: 30px;
+  font-size: 9px;
+  color: var(--color-text-tertiary);
+  text-align: right;
+  line-height: 1;
+  padding-bottom: 22px;
+  padding-top: 4px;
+}
+.vbar-layout .chart-scroll {
+  flex: 1;
+  min-width: 0;
+}
+.vbar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 200px;
+  min-width: 520px;
+  padding-top: 4px;
+  position: relative;
+  flex: 1;
+}
+.vbar-chart::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 22px;
+  height: 1px;
+  background: var(--color-border);
+}
+.vbar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  height: 100%;
+  justify-content: flex-end;
+}
+.vbar-fill {
+  width: 100%;
+  max-width: 28px;
+  border-radius: 4px 4px 0 0;
+  background: var(--color-red);
+  transition: opacity 0.15s;
+  cursor: default;
+  position: relative;
+}
+.vbar-fill:hover { opacity: 0.85; }
+.vbar-fill.is-last { background: var(--color-red-dark); }
+.vbar-label {
+  font-size: 7px;
+  color: var(--color-text-tertiary);
+  margin-top: 4px;
+  text-align: center;
+  line-height: 1.1;
+  writing-mode: horizontal-tb;
+  transform: rotate(-50deg);
+  transform-origin: top center;
+  white-space: nowrap;
+  height: 22px;
+  width: 100%;
+  overflow: visible;
+}
+
+.hbar-chart { display: flex; flex-direction: column; gap: 4px; width: 100%; min-width: 0; max-width: 100%; }
+.hbar-axis-bottom {
+  display: grid;
+  grid-template-columns: minmax(72px, 30%) 1fr;
+  gap: 8px;
+  align-items: center;
+  margin-top: 2px;
+  padding-top: 6px;
+  border-top: 1px solid var(--color-border);
+  min-width: 0;
+  max-width: 100%;
+}
+.hbar-x-axis {
+  grid-column: 2;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  line-height: 1;
+}
+.hbar-row {
+  display: grid;
+  grid-template-columns: minmax(72px, 30%) 1fr;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+.hbar-bar-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.hbar-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.hbar-track {
+  display: flex;
+  flex: 1;
+  height: 18px;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  overflow: hidden;
+  min-width: 0;
+}
+@media (prefers-color-scheme: dark) {
+  .hbar-track { background: rgba(255, 255, 255, 0.04); }
+}
+.hbar-fill {
+  flex: 0 0 auto;
+  height: 100%;
+  border-radius: 4px 0 0 4px;
+  min-width: 0;
+}
+.hbar-value {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-align: right;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tl-footer {
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px;
+  font-size: 11px; color: var(--color-text-secondary);
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--color-border);
+}
+.tl-footer b { color: var(--color-text-primary); font-weight: 700; }
+
+/* ── Heatmap ── */
+.heatmap-wrap {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  width: 100%;
+  padding: 0 0 4px;
+}
+.heatmap { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 11px; }
+.heatmap th { font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--color-text-tertiary); padding: 4px 4px; text-align: center; letter-spacing: 0.03em; }
+.heatmap td { padding: 4px 4px; text-align: center; border-radius: 4px; }
+.heatmap .name-cell { text-align: left; font-weight: 500; color: var(--color-text-primary); font-size: 11px; padding-right: 8px; white-space: nowrap; position: sticky; left: 0; background: var(--color-background-primary); z-index: 1; }
+.hm-yes { background: var(--color-red); color: #fff; font-weight: 700; }
+.hm-no { background: var(--color-red-pale); color: transparent; font-size: 8px; }
+
+/* ── Insights ── */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 12px;
+  min-width: 0;
+  max-width: 100%;
+}
+.insight-card {
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  border-left: 4px solid var(--color-red);
+}
+.insight-num { font-size: 11px; font-weight: 700; color: var(--color-red); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.insight-title { font-size: 14px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 6px; line-height: 1.3; }
+.insight-body { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; overflow-wrap: anywhere; }
+.insight-highlight {
+  display: inline; background: #fef2f2; color: #c81e1e;
+  border-radius: 4px; padding: 1px 6px; font-weight: 700; font-size: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  .insight-highlight { background: rgba(240,40,40,0.15); color: #f87171; }
+}
+
+/* ── Footer info blocks ── */
+.info-card {
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+  max-width: 100%;
+}
+.info-card--site { border-left: 4px solid var(--color-red); }
+.info-card--author {
+  border-left: 4px solid var(--color-red);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.info-icon {
+  flex-shrink: 0;
+  width: 40px; height: 40px;
+  background: #fef2f2;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+@media (prefers-color-scheme: dark) {
+  .info-icon { background: rgba(240,40,40,0.12); }
+}
+.info-content { flex: 1; min-width: 0; }
+.info-title { font-size: 14px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 5px; }
+.info-body { font-size: 13px; color: var(--color-text-secondary); line-height: 1.55; }
+.info-body a {
+  color: var(--color-red);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(240,40,40,0.3);
+  transition: border-color 0.15s;
+}
+.info-body a:hover { border-color: var(--color-red); }
+.btn-subscribe {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--color-red);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.1s;
+  white-space: nowrap;
+  margin-top: 4px;
+}
+.btn-subscribe:hover { background: #d42020; }
+.btn-subscribe:active { transform: scale(0.98); }
+
+/* ── Liker widget ── */
+.liker {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  gap: 10px;
+  max-width: calc(100vw - 48px);
+}
+.liker-msg {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  max-width: 240px;
+  line-height: 1.45;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(10px);
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s ease;
+  pointer-events: none;
+}
+.liker-msg.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+.liker-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px 11px 14px;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.liker-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(240, 40, 40, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.liker-btn:active { transform: scale(0.94); }
+.liker-heart {
+  font-size: 26px;
+  line-height: 1;
+  display: block;
+  transition: transform 0.2s ease;
+}
+.liker-btn.is-bump .liker-heart { animation: liker-heart-bump 0.35s ease; }
+.liker-count {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-red);
+  min-width: 3ch;
+  text-align: left;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+.liker-btn.is-bump .liker-count { animation: liker-count-bump 0.35s ease; }
+
+.heart-particle {
+  position: fixed;
+  font-size: var(--size, 22px);
+  line-height: 1;
+  pointer-events: none;
+  z-index: 10000;
+  animation: heart-float var(--dur, 900ms) ease-out forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes liker-heart-bump {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+}
+@keyframes liker-count-bump {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.2); }
+}
+@keyframes heart-float {
+  0% {
+    transform: translate(0, 0) scale(0.5) rotate(0deg);
+    opacity: 1;
+  }
+  20% {
+    transform: translate(calc(var(--dx) * 0.3), -24px) scale(1) rotate(var(--rot));
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), -110px) scale(1.15) rotate(calc(var(--rot) * 2));
+    opacity: 0;
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .sf { padding: 0.75rem 0.75rem 5.5rem; }
+  .sf-header { padding: 1rem 1.1rem; border-radius: 10px; min-width: 0; }
+  .sf-badge { font-size: 9px; padding: 3px 8px; white-space: normal; max-width: 100%; }
+  .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chart-card { padding: 0.875rem 0.75rem 0.75rem; }
+  .hbar-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name value"
+      "track track";
+    gap: 3px 8px;
+  }
+  .hbar-bar-cell { display: contents; }
+  .hbar-name { grid-area: name; font-size: 10px; }
+  .hbar-value { grid-area: value; font-size: 9px; }
+  .hbar-track { grid-area: track; height: 14px; }
+  .vbar-y-axis { width: 26px; font-size: 8px; }
+  .vbar-chart { height: 170px; }
+  .hbar-axis-bottom {
+    grid-template-columns: 1fr;
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+  .hbar-x-axis { grid-column: 1; font-size: 9px; }
+  .tl-footer { flex-direction: column; gap: 4px; }
+  .insights-grid { grid-template-columns: minmax(0, 1fr); }
+  .info-card { padding: 1rem; gap: 12px; }
+  .info-card--author { flex-direction: column; align-items: stretch; }
+  .btn-subscribe { width: 100%; margin-top: 8px; }
+  .liker { bottom: 16px; right: 16px; max-width: calc(100vw - 32px); flex-direction: column; align-items: flex-end; gap: 8px; }
+  .liker-msg { max-width: min(280px, calc(100vw - 32px)); font-size: 11px; transform: translateY(8px); }
+  .liker-msg.is-visible { transform: translateY(0); }
+  .liker-btn { padding: 10px 16px 10px 12px; gap: 6px; max-width: 100%; }
+  .liker-heart { font-size: 22px; }
+  .liker-count { font-size: 14px; }
+}
+
+@media (max-width: 380px) {
+  .kpi-row { grid-template-columns: minmax(0, 1fr); }
+  .sf-header { flex-direction: column; align-items: flex-start; }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+  .kpi-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 901px) {
+  .vbar-chart { min-width: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="sf">
+
+  <header class="sf-header">
+    <div>
+      <div class="sf-logo">14<span>СФ</span> — Аналитика</div>
+      <div class="sf-tagline">Стипендиальный фонд БСОШ №14 · Бендеры · 2021–2026</div>
+    </div>
+    <div class="sf-badge">Учебные годы 2021/22 → 2025/26</div>
+  </header>
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">Получателей</div>
+      <div class="kpi-value">13</div>
+      <div class="kpi-sub">уникальных человек</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Выплат всего</div>
+      <div class="kpi-value">166&nbsp;842</div>
+      <div class="kpi-sub">российских рублей</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Кварталов</div>
+      <div class="kpi-value">20</div>
+      <div class="kpi-sub">5 учебных лет</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Макс. стипендий</div>
+      <div class="kpi-value">12</div>
+      <div class="kpi-sub">сразу 4 человека</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Рекорд суммы</div>
+      <div class="kpi-value">31&nbsp;022</div>
+      <div class="kpi-sub">Сиденко Иван ₽</div>
+    </div>
+  </div>
+
+  <section class="sf-section">
+    <div class="sf-section-title">Динамика по кварталам</div>
+    <div class="chart-card">
+      <div class="chart-title">Объём выплат за квартал (₽)</div>
+      <div class="chart-desc">Порядок: Q1→Q2→Q3→Q4 внутри каждого учебного года</div>
+      <div class="year-strip" id="yearStrip"></div>
+      <div class="legend">
+        <span><span class="ldot" style="background:#f02828;"></span>Сумма выплат</span>
+        <span><span class="ldot" style="background:#7f0f0f;"></span>Последний период</span>
+      </div>
+      <div class="vbar-layout">
+        <div class="vbar-y-axis" aria-hidden="true">
+          <span>15к</span><span>10к</span><span>5к</span><span>0</span>
+        </div>
+        <div class="chart-scroll">
+          <div class="vbar-chart" id="timelineChart"></div>
+        </div>
+      </div>
+      <div class="tl-footer">
+        <span>Старт: <b>Q1 2021 · 6&nbsp;900 ₽</b></span>
+        <span>Пик: <b>Q1 2023 · 14&nbsp;067 ₽</b></span>
+        <span>Спад: <b>Q1–Q2 2025 · ~3&nbsp;000 ₽</b></span>
+        <span>Последняя: <b>Q4 2026 · 4&nbsp;036 ₽</b></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sf-section">
+    <div class="sf-section-title">Получатели</div>
+    <div class="chart-card">
+      <div class="chart-title">Суммарные выплаты по получателям (₽)</div>
+      <div class="chart-desc">Все выплаты за историю программы · после исправления опечаток</div>
+      <div class="legend">
+        <span><span class="ldot" style="background:#f02828;"></span>активные (6+ стипендий)</span>
+        <span><span class="ldot" style="background:#f9a8a8;"></span>средний уровень (2–5)</span>
+        <span><span class="ldot" style="background:#fde8e8;border:1px solid #f9a8a8;"></span>разовые получатели</span>
+      </div>
+      <div class="hbar-chart">
+        <div id="personChart"></div>
+        <div class="hbar-axis-bottom">
+          <div class="hbar-x-axis" id="personXAxis"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sf-section">
+    <div class="sf-section-title">Карта активности</div>
+    <div class="chart-card">
+      <div class="chart-title">Присутствие получателей по кварталам</div>
+      <div class="chart-desc">Красная ячейка — стипендия получена в данном периоде</div>
+      <div class="heatmap-wrap">
+        <table class="heatmap" id="heatmapTable"></table>
+      </div>
+    </div>
+  </section>
+
+  <section class="sf-section">
+    <div class="sf-section-title">Топ-3 инсайта</div>
+    <div class="insights-grid">
+      <div class="insight-card">
+        <div class="insight-num">Инсайт № 1</div>
+        <div class="insight-title">«Костяк» из 6 человек забирает 78% всех денег</div>
+        <div class="insight-body">
+          Топ-6 получателей (Сиденко, Кривошеева Д., Шаровы ×2, Кривошеев А., Куспляк) суммарно получили
+          <span class="insight-highlight">130&nbsp;060 ₽ из 166&nbsp;842 ₽</span> — это 78%. Программа де-факто работает как «накопительная» — чем дольше учишься в 9–11 классе, тем больше получаешь. Максимум: 3 года × 4 квартала = 12 стипендий, и именно столько у четырёх лидеров.
+        </div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-num">Инсайт № 2</div>
+        <div class="insight-title">Пик фонда — 2022/23 уч. год, затем системный спад</div>
+        <div class="insight-body">
+          Учебный год 2022/23 стал рекордным: <span class="insight-highlight">51&nbsp;714 ₽</span> — почти треть всех выплат за 5 лет. После выпуска этого поколения в 2024/25 объём рухнул до <span class="insight-highlight">13&nbsp;160 ₽</span> — минимум за всю историю. Фонд фактически «держится» на одном Кривошееве Андрее. Это структурный риск: смена поколения = провал финансирования.
+        </div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-num">Инсайт № 3</div>
+        <div class="insight-title">Средняя выплата на человека выросла в 2,8× — но получателей стало меньше</div>
+        <div class="insight-body">
+          В Q1 2021 средняя выплата на одного стипендиата была <span class="insight-highlight">1&nbsp;150 ₽</span>, а к 2024/25 выросла до <span class="insight-highlight">3&nbsp;077–3&nbsp;441 ₽</span>. Но число активных получателей упало с 6 до 1. Индексация компенсировала спад в деньгах, но не в охвате. Риск: при появлении нового «класса» отличников бюджет может не справиться с нагрузкой по новым ставкам.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sf-section">
+    <div class="sf-section-title">Официальный сайт</div>
+    <div class="info-card info-card--site">
+      <div class="info-icon" aria-hidden="true">🌐</div>
+      <div class="info-content">
+        <div class="info-title">Официальный сайт фонда</div>
+        <div class="info-body">
+          <a href="https://www.sf14.ru" target="_blank" rel="noopener noreferrer">www.sf14.ru</a> — доступно больше новостей и отчётности.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sf-section">
+    <div class="sf-section-title">Об авторе</div>
+    <div class="info-card info-card--author">
+      <div class="info-icon" aria-hidden="true">✍️</div>
+      <div class="info-content">
+        <div class="info-title">Гаврильченко Игорь</div>
+        <div class="info-body">
+          Аналитику сформировал Гаврильченко Игорь, учредитель фонда и автор блога «Стилевый продакт». Подписывайтесь на канал
+        </div>
+      </div>
+      <a class="btn-subscribe" href="https://t.me/tech_igor" target="_blank" rel="noopener noreferrer">Подписаться</a>
+    </div>
+  </section>
+
+</div>
+
+<div class="liker" id="liker">
+  <div class="liker-msg" id="likerMsg" role="status" aria-live="polite"></div>
+  <button class="liker-btn" id="likerBtn" type="button" aria-label="Поставить лайк">
+    <span class="liker-heart" aria-hidden="true">❤️</span>
+    <span class="liker-count" id="likerCount">228</span>
+  </button>
+</div>
+
+<script>
+(function () {
+  const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const red = '#f02828', redDark = '#7f0f0f', redLight = '#f9a8a8';
+  const redPale = isDark ? 'rgba(240,40,40,0.12)' : '#fde8e8';
+  const ayBg = isDark
+    ? ['rgba(240,40,40,0.12)','rgba(240,40,40,0.06)','rgba(240,40,40,0.12)','rgba(240,40,40,0.06)','rgba(240,40,40,0.12)']
+    : ['#fef2f2','#fff8f8','#fef2f2','#fff8f8','#fef2f2'];
+  const ayText = isDark ? '#f87171' : '#c81e1e';
+  const academicYears = ['2021/22','2022/23','2023/24','2024/25','2025/26'];
+
+  const tlLabels = [
+    'Q1 21','Q2 21','Q3 22','Q4 22','Q1 22','Q2 22','Q3 23','Q4 23',
+    'Q1 23','Q2 23','Q3 24','Q4 24','Q1 24','Q2 24','Q3 25','Q4 25',
+    'Q1 25','Q2 25','Q3 26','Q4 26'
+  ];
+  const tlData = [6900,8272,7598,4964,5932,8955,10789,11559,14067,12353,12353,12941,9786,10323,8333,8556,3077,2970,3077,4036];
+  const ayForLabel = ['2021/22','2022/23','2023/24','2024/25','2025/26'];
+
+  const strip = document.getElementById('yearStrip');
+  academicYears.forEach(function (y, i) {
+    const d = document.createElement('div');
+    d.className = 'yband';
+    d.textContent = y;
+    d.style.background = ayBg[i];
+    d.style.color = ayText;
+    strip.appendChild(d);
+  });
+
+  const tlMax = Math.max.apply(null, tlData);
+  const tlChart = document.getElementById('timelineChart');
+  tlData.forEach(function (val, i) {
+    const col = document.createElement('div');
+    col.className = 'vbar-col';
+    const fill = document.createElement('div');
+    fill.className = 'vbar-fill' + (i === tlData.length - 1 ? ' is-last' : '');
+    fill.style.height = (val / tlMax * 100) + '%';
+    const ay = ayForLabel[Math.floor(i / 4)];
+    fill.title = tlLabels[i] + ' · уч. год ' + ay + '\n' + val.toLocaleString('ru-RU') + ' ₽';
+    const lbl = document.createElement('div');
+    lbl.className = 'vbar-label';
+    lbl.textContent = tlLabels[i];
+    col.appendChild(fill);
+    col.appendChild(lbl);
+    tlChart.appendChild(col);
+  });
+
+  const pNames = ['Сиденко Иван','Кривошеева Дарья','Шарова Мария','Шарова Тира','Кривошеев Андрей','Куспляк Николай','Берзой Кристина','Глотов Денис','Кривошеева Елизавета','Котова Наталья','Шаркова Анита','Коваленко Андрей','Жильцова Юлия'];
+  const pTotals = [31022,26681,26681,26381,21064,20133,4465,4973,1345,1149,1149,900,900];
+  const pCounts = [12,12,12,12,8,8,4,3,1,1,1,1,1];
+  const pBg = pCounts.map(function (c) { return c >= 6 ? red : c >= 2 ? redLight : redPale; });
+  const pMax = Math.max.apply(null, pTotals);
+  const pChart = document.getElementById('personChart');
+  const pAxis = document.getElementById('personXAxis');
+  [0, 10000, 20000, 30000].forEach(function (t) {
+    const span = document.createElement('span');
+    span.textContent = t === 0 ? '0' : (t / 1000).toFixed(0) + 'к ₽';
+    pAxis.appendChild(span);
+  });
+
+  pNames.forEach(function (name, i) {
+    const pct = (pTotals[i] / pMax * 100).toFixed(2);
+    const row = document.createElement('div');
+    row.className = 'hbar-row';
+    row.innerHTML =
+      '<span class="hbar-name" title="' + name + '">' + name + '</span>' +
+      '<div class="hbar-bar-cell">' +
+        '<div class="hbar-track"><div class="hbar-fill" style="width:' + pct + '%;background:' + pBg[i] + '" title="' + pTotals[i].toLocaleString('ru-RU') + ' ₽ · ' + pCounts[i] + ' стипендий"></div></div>' +
+        '<span class="hbar-value">' + pTotals[i].toLocaleString('ru-RU') + '</span>' +
+      '</div>';
+    pChart.appendChild(row);
+  });
+
+  const periods = ['Q1\'21','Q2\'21','Q3\'22','Q4\'22','Q1\'22','Q2\'22','Q3\'23','Q4\'23','Q1\'23','Q2\'23','Q3\'24','Q4\'24','Q1\'24','Q2\'24','Q3\'25','Q4\'25','Q1\'25','Q2\'25','Q3\'26','Q4\'26'];
+  const ayGroups = ['2021/22','2021/22','2021/22','2021/22','2022/23','2022/23','2022/23','2022/23','2023/24','2023/24','2023/24','2023/24','2024/25','2024/25','2024/25','2024/25','2025/26','2025/26','2025/26','2025/26'];
+  const presence = {
+    'Сиденко Иван':        [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+    'Кривошеева Дарья':    [1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0],
+    'Шарова Мария':        [1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0],
+    'Шарова Тира':         [1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0],
+    'Кривошеев Андрей':    [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1],
+    'Куспляк Николай':     [0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0],
+    'Берзой Кристина':     [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'Глотов Денис':        [0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0],
+    'Кривошеева Елизавета':[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    'Котова Наталья':      [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'Шаркова Анита':       [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'Коваленко Андрей':    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    'Жильцова Юлия':       [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  };
+
+  const table = document.getElementById('heatmapTable');
+  const ayHeaderRow = document.createElement('tr');
+  const emptyTh = document.createElement('th');
+  emptyTh.className = 'name-cell';
+  ayHeaderRow.appendChild(emptyTh);
+
+  let prev = null, colspan = 0, cells = [];
+  ayGroups.forEach(function (ay, i) {
+    if (ay !== prev) { if (prev !== null) cells.push([prev, colspan]); prev = ay; colspan = 1; }
+    else colspan++;
+    if (i === ayGroups.length - 1) cells.push([ay, colspan]);
+  });
+  cells.forEach(function (pair) {
+    const th = document.createElement('th');
+    th.colSpan = pair[1];
+    th.textContent = pair[0];
+    th.style.color = ayText;
+    th.style.background = isDark ? 'rgba(240,40,40,0.1)' : '#fef2f2';
+    th.style.padding = '4px 0';
+    th.style.borderRadius = '4px';
+    ayHeaderRow.appendChild(th);
+  });
+  table.appendChild(ayHeaderRow);
+
+  const qhRow = document.createElement('tr');
+  const qEmpty = document.createElement('th');
+  qEmpty.className = 'name-cell';
+  qhRow.appendChild(qEmpty);
+  periods.forEach(function (p) {
+    const th = document.createElement('th');
+    th.textContent = p;
+    qhRow.appendChild(th);
+  });
+  table.appendChild(qhRow);
+
+  Object.keys(presence).forEach(function (name) {
+    const tr = document.createElement('tr');
+    const td0 = document.createElement('td');
+    td0.className = 'name-cell';
+    td0.textContent = name;
+    tr.appendChild(td0);
+    presence[name].forEach(function (v) {
+      const td = document.createElement('td');
+      td.className = v ? 'hm-yes' : 'hm-no';
+      td.textContent = v ? '✓' : '·';
+      tr.appendChild(td);
+    });
+    table.appendChild(tr);
+  });
+})();
+
+(function () {
+  const STORAGE_KEY = 'sf14_liker_count';
+  const DEFAULT_COUNT = 228;
+  const MSG_DURATION = 7000;
+  const MILESTONES = {
+    10: 'Вау, вот бы столько лайков на мои посты :)',
+    50: 'Вот это да. Спасибо за поддержку!',
+    100: 'Ну все, все, хватит ))) Лайки никуда не сохранятся, поэтому хорош'
+  };
+  const btn = document.getElementById('likerBtn');
+  const countEl = document.getElementById('likerCount');
+  const msgEl = document.getElementById('likerMsg');
+  const hearts = ['❤️', '❤️', '🩷', '💗', '💖'];
+  let count = DEFAULT_COUNT;
+  let msgTimer = null;
+
+  try {
+    const stored = sessionStorage.getItem(STORAGE_KEY);
+    if (stored !== null && !isNaN(parseInt(stored, 10))) {
+      count = parseInt(stored, 10);
+    }
+  } catch (e) { /* private mode */ }
+
+  countEl.textContent = count.toLocaleString('ru-RU');
+
+  function saveCount() {
+    try { sessionStorage.setItem(STORAGE_KEY, String(count)); } catch (e) { /* ignore */ }
+  }
+
+  function showMessage(text) {
+    clearTimeout(msgTimer);
+    msgEl.textContent = text;
+    msgEl.classList.remove('is-visible');
+    void msgEl.offsetWidth;
+    msgEl.classList.add('is-visible');
+    msgTimer = setTimeout(function () {
+      msgEl.classList.remove('is-visible');
+    }, MSG_DURATION);
+  }
+
+  function spawnHearts() {
+    const rect = btn.getBoundingClientRect();
+    const originX = rect.left + rect.width * 0.35;
+    const originY = rect.top + rect.height * 0.4;
+    const amount = 4 + Math.floor(Math.random() * 3);
+
+    for (let i = 0; i < amount; i++) {
+      const el = document.createElement('span');
+      el.className = 'heart-particle';
+      el.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      el.style.left = (originX + (Math.random() - 0.5) * 16) + 'px';
+      el.style.top = originY + 'px';
+      el.style.setProperty('--dx', ((Math.random() - 0.5) * 80) + 'px');
+      el.style.setProperty('--rot', ((Math.random() - 0.5) * 40) + 'deg');
+      el.style.setProperty('--size', (16 + Math.random() * 14) + 'px');
+      el.style.setProperty('--dur', (750 + Math.random() * 400) + 'ms');
+      el.style.animationDelay = (i * 60) + 'ms';
+      document.body.appendChild(el);
+      el.addEventListener('animationend', function () { el.remove(); });
+    }
+  }
+
+  btn.addEventListener('click', function () {
+    count += 1;
+    countEl.textContent = count.toLocaleString('ru-RU');
+    saveCount();
+    btn.classList.remove('is-bump');
+    void btn.offsetWidth;
+    btn.classList.add('is-bump');
+    setTimeout(function () { btn.classList.remove('is-bump'); }, 400);
+    spawnHearts();
+
+    const userClicks = count - DEFAULT_COUNT;
+    if (MILESTONES[userClicks]) {
+      showMessage(MILESTONES[userClicks]);
+    }
+  });
+})();
+</script>
+</body>
+</html>
